@@ -1,0 +1,1 @@
+{"timestamp": "2026-04-13T17:58:56-03:00", "actionName": "SECURITY_REFACTOR_DASHBOARD", "details": "Removed hardcoded secrets from meta-api.js, enforced sessionStorage token persistence, injected rigid CSP meta headers to index.html, fixed Chart.js data orchestration, introduced Logger service.", "user": "Camila Monteiro"}

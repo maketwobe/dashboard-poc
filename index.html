@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Dashboard de Analytics para conteúdo orgânico do Instagram">
+  
+  <!-- Content Security Policy to enforce security -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://graph.facebook.com; img-src 'self' data:;">
+
+  <title>Instagram Analytics · Conteúdo Orgânico</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* Estilos Modal de Configuração (Adicionado dinamicamente para manter no mesmo CSS de escopo) */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(10, 10, 26, 0.85); backdrop-filter: blur(8px);
+      display: none; justify-content: center; align-items: center; z-index: 1000;
+    }
+    .modal-content {
+      background: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: var(--space-xl); border-radius: var(--radius-lg); width: 100%; max-width: 480px;
+      box-shadow: var(--shadow-hover);
+    }
+    .form-group { margin-bottom: var(--space-lg); }
+    .form-label { display: block; margin-bottom: var(--space-sm); font-size: 0.875rem; color: var(--text-secondary); }
+    .form-input { 
+      width: 100%; padding: 0.8rem; border-radius: var(--radius-sm); border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05); color: var(--text-primary); font-family: 'Inter', sans-serif;
+    }
+    .form-input:focus { outline: none; border-color: var(--accent-primary); }
+    .form-submit { 
+      width: 100%; padding: 1rem; border: none; border-radius: var(--radius-sm);
+      background: var(--accent-gradient); color: #FFF; font-weight: 600; cursor: pointer; transition: 0.2s;
+    }
+    .form-submit:hover { opacity: 0.9; transform: translateY(-2px); }
+  </style>
+</head>
+
+<body>
+
+  <!-- Modal de Configuração do Token -->
+  <div class="modal-overlay" id="config-modal">
+    <div class="modal-content">
+      <h2 style="margin-bottom: 0.5rem; color: var(--text-primary);">Configuração de Acesso</h2>
+      <p style="margin-bottom: 2rem; color: var(--text-secondary); font-size: 0.875rem;">Insira suas credenciais da Meta Graph API. Elas serão salvas de forma efêmera no seu navegador.</p>
+      
+      <div class="form-group">
+        <label class="form-label">Access Token (Meta Developer)</label>
+        <input type="password" id="input-token" class="form-input" placeholder="EAAMuH..." autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label class="form-label">IG Business Account ID</label>
+        <input type="text" id="input-ig-id" class="form-input" placeholder="178414..." autocomplete="off">
+      </div>
+      <button id="save-credentials" class="form-submit">Salvar e Carregar Dados</button>
+    </div>
+  </div>
+
+  <div class="dashboard" id="dashboard">
+    <header class="header">
+      <div class="header__brand">
+        <div class="header__icon">📊</div>
+        <div>
+          <h1 class="header__title">Instagram Analytics</h1>
+          <p class="header__subtitle">Performance de Conteúdo Orgânico</p>
+        </div>
+      </div>
+
+      <div class="filters" id="filters">
+        <div class="date-filter">
+          <label class="date-filter__label" for="date-start">De:</label>
+          <input type="date" id="date-start" class="date-filter__input">
+          <label class="date-filter__label" for="date-end">Até:</label>
+          <input type="date" id="date-end" class="date-filter__input">
+          <button class="filters__btn" id="btn-filtrar">Filtrar</button>
+          <button class="filters__btn filters__btn--active" id="btn-limpar">Todos</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Gráficos -->
+    <section class="charts-grid" aria-label="Visualizações de Dados">
+      <div class="chart-card chart-card--wide">
+        <h3 class="chart-card__title">Evolução do Alcance e Interações</h3>
+        <p class="chart-card__subtitle">Tendência temporal por data de publicação</p>
+        <div><canvas id="chart-line" class="chart-card__canvas"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3 class="chart-card__title">Top 10: Taxa de Engajamento</h3>
+        <p class="chart-card__subtitle">Posts com melhor desempenho relativo (%)</p>
+        <div><canvas id="chart-bar" class="chart-card__canvas"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3 class="chart-card__title">Distribuição de Interações</h3>
+        <p class="chart-card__subtitle">Composição do engajamento total</p>
+        <div><canvas id="chart-doughnut" class="chart-card__canvas"></canvas></div>
+      </div>
+      <div class="chart-card chart-card--wide">
+        <h3 class="chart-card__title">Quadrante de Performance (Alcance × Engajamento)</h3>
+        <p class="chart-card__subtitle">Tamanho e cor refletem o Score Geral</p>
+        <div><canvas id="chart-scatter" class="chart-card__canvas"></canvas></div>
+      </div>
+    </section>
+
+    <!-- Ranking Table -->
+    <section class="ranking-section" aria-label="Ranking de posts">
+      <div class="ranking-card">
+        <div class="ranking-card__header">
+          <h2 class="ranking-card__title">🏅 Ranking de Performance</h2>
+          <span class="ranking-card__badge" id="ranking-badge">— posts</span>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="ranking-table" id="ranking-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Post</th>
+                <th>Alcance</th>
+                <th>Interações</th>
+                <th>Engajamento</th>
+                <th>Salvamentos</th>
+                <th>Compartilh.</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody id="ranking-tbody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>Dashboard de Analytics · Integrado via <a href="https://developers.facebook.com/" target="_blank" rel="noopener">Meta Graph API</a></p>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="data.js"></script>
+  <script src="meta-api.js"></script>
+  <script src="charts.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
