@@ -13,12 +13,12 @@ const MetaAPI = {
         baseUrl: 'https://graph.facebook.com/v19.0',
         accessToken: sessionStorage.getItem('meta_access_token') || '',
         igBusinessAccountId: sessionStorage.getItem('meta_ig_account_id') || '',
-        appId: '',
+        appId: sessionStorage.getItem('meta_app_id') || '',
         dataMinima: '2026-01-01',
     },
 
     isConfigured() {
-        return this.config.accessToken !== '' && this.config.igBusinessAccountId !== '';
+        return this.config.accessToken !== '' && this.config.igBusinessAccountId !== '' && this.config.appId !== '';
     },
 
     getHeaders() {
@@ -183,6 +183,7 @@ const MetaAPI = {
         
         sessionStorage.setItem('meta_access_token', this.config.accessToken);
         sessionStorage.setItem('meta_ig_account_id', this.config.igBusinessAccountId);
+        sessionStorage.setItem('meta_app_id', this.config.appId);
 
         Logger.info('Configuração atualizada', { status: this.isConfigured() ? 'ATIVO' : 'INCOMPLETO' });
     },

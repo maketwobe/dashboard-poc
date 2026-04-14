@@ -29,13 +29,15 @@ function showConfigModal() {
         document.getElementById('save-credentials').addEventListener('click', () => {
             const token = document.getElementById('input-token').value.trim();
             const igId = document.getElementById('input-ig-id').value.trim();
+            const appIdNode = document.getElementById('input-app-id');
+            const appId = appIdNode ? appIdNode.value.trim() : '';
             
-            if (token && igId) {
-                MetaAPI.configure({ accessToken: token, igBusinessAccountId: igId });
+            if (token && igId && appId) {
+                MetaAPI.configure({ accessToken: token, igBusinessAccountId: igId, appId: appId });
                 modal.style.display = 'none';
                 initDashboard();
             } else {
-                alert('Por favor, preencha ambos os campos.');
+                alert('Por favor, preencha todos os campos obrigatórios (Token, IG ID e App ID).');
             }
         });
     } else {
