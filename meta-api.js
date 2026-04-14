@@ -38,7 +38,8 @@ const MetaAPI = {
         let url = `${this.config.baseUrl}/${this.config.igBusinessAccountId}/media`
             + `?fields=id,caption,media_type,media_url,permalink,timestamp,like_count,comments_count`
             + `&limit=100`
-            + `&access_token=${this.config.accessToken}`;
+            + `&access_token=${this.config.accessToken}`
+            + (this.config.appId ? `&app_id=${this.config.appId}` : '');
 
         let page = 1;
         const dataMinima = this.config.dataMinima;
@@ -99,7 +100,7 @@ const MetaAPI = {
 
         for (const metrics of metricSets) {
             try {
-                const url = `${this.config.baseUrl}/${mediaId}/insights?metric=${metrics}&access_token=${this.config.accessToken}`;
+                const url = `${this.config.baseUrl}/${mediaId}/insights?metric=${metrics}&access_token=${this.config.accessToken}` + (this.config.appId ? `&app_id=${this.config.appId}` : '');
                 const response = await fetch(url);
 
                 if (!response.ok) {
